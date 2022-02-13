@@ -1,13 +1,63 @@
+import json
 import os
+import signal
+import time
 
 import cd_api
 import discord_helper
 
+DATA_FILE = "data.json"
+
+
+class Killer:
+
+    def __init__(self):
+        self.stop = False
+        signal.signal(signal.SIGINT, self.do_stop)
+        signal.signal(signal.SIGTERM, self.do_stop)
+
+    def do_stop(self, *_):
+        self.stop = True
+
+
+KILLER = Killer()
+
 
 def main():
+    while True:
+        print("performing check")
+        check_once()
+        print("done, sleeping.")
+        for i in range(int(os.environ.get("CHECK_INTERVAL", "900"))):
+            time.sleep(1)
+            if KILLER.stop:
+                print("sleep interrupted")
+                exit()
+
+
+def check_once():
+    try:
+        with open(DATA_FILE) as f:
+            known_modules = json.load(f)
+            first_run = False
+    except FileNotFoundError:
+        known_modules = []
+        first_run = True
+
     api = cd_api.CDApi(os.environ.get("CD_USERNAME"), os.environ.get("CD_PASSWORD"))
     results = api.get_exam_results()
-    discord_helper.send_result_embed(results[1], api.get_result_dist(results[1]))
+    for r in results:
+        if r.module in known_modules:
+            continue
+        if KILLER.stop:
+            exit()
+        if not first_run:
+            print("sending discord notification for", r.module)
+            discord_helper.send_result_embed(r, api.get_result_dist(r))
+        known_modules.append(r.module)
+
+    with open(DATA_FILE, "w") as f:
+        json.dump(known_modules, f, indent=2)
 
 
 if __name__ == "__main__":
