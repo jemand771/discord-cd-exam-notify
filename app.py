@@ -33,8 +33,8 @@ def main():
     while True:
         print("performing check")
         check_once()
-        print("done, sleeping.")
-        for i in range(int(os.environ.get("CHECK_INTERVAL", "900"))):
+        print(f"done, sleeping for {(sleep_duration := int(os.environ.get('CHECK_INTERVAL', '900')))}s.")
+        for i in range(sleep_duration):
             time.sleep(1)
             if KILLER.stop:
                 print("sleep interrupted")
@@ -52,6 +52,7 @@ def check_once():
 
     api = cd_api.CDApi(os.environ.get("CD_USERNAME"), os.environ.get("CD_PASSWORD"))
     results = api.get_exam_results()
+    print(f"found {len(results)} results")
     for r in results:
         if r.module in known_modules:
             continue
