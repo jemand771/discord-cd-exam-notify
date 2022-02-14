@@ -3,6 +3,8 @@ import os
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+
 
 import model
 from model import MScore
@@ -23,9 +25,9 @@ class CDApi:
 
     def _do_login(self, username, password):
         self.driver.get("https://selfservice.campus-dual.de/index/login")
-        self.driver.find_element_by_id("sap-user").send_keys(username)
-        self.driver.find_element_by_id("sap-password").send_keys(password)
-        self.driver.find_element_by_id("LOGON_BUTTON").click()
+        self.driver.find_element(By.ID, "sap-user").send_keys(username)
+        self.driver.find_element(By.ID, "sap-password").send_keys(password)
+        self.driver.find_element(By.ID, "LOGON_BUTTON").click()
 
     @property
     def cookie(self):
@@ -36,12 +38,12 @@ class CDApi:
 
     def get_exam_results(self):
         self.driver.get("https://selfservice.campus-dual.de/acwork/index")
-        results = self.driver.find_elements_by_css_selector("div#mscore a.mscore")
+        results = self.driver.find_elements(By.CSS_SELECTOR, "div#mscore a.mscore")
         return [self._make_mscore(x) for x in results]
 
     @staticmethod
     def _make_mscore(mscore_link):
-        table_cols = mscore_link.find_element_by_xpath("../../..").find_elements_by_css_selector("td")
+        table_cols = mscore_link.find_element(By.XPATH, "../../..").find_elements(By.CSS_SELECTOR, "td")
         return MScore(
             module=mscore_link.get_attribute("data-module"),
             year=mscore_link.get_attribute("data-peryr"),
