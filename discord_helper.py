@@ -1,6 +1,5 @@
 import json
 import os
-import time
 import urllib.parse
 
 import discord_webhook
@@ -23,7 +22,6 @@ def send_result_embed(mscore: model.MScore, mscoredist: model.MScoreDist = None)
         description="Ein neues Prüfungsergebnis wurde auf Campus Dual veröffentlicht.",
         color="0070A3"
     )
-    date_embed.set_timestamp(int(time.time()))
     date_embed.add_embed_field(name="Semester", value=f"{mscore.year}.{mscore.period}")
     date_embed.add_embed_field(name="Bewertungsdatum", value=mscore.date_score)
     date_embed.add_embed_field(name="Veröffentlichungsdatum", value=mscore.date_publish)
