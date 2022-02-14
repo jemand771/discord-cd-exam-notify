@@ -6,6 +6,8 @@ import time
 import cd_api
 import discord_helper
 
+import requests
+
 DATA_FILE = "data.json"
 
 
@@ -24,6 +26,10 @@ KILLER = Killer()
 
 
 def main():
+    # surpress insecure request warnings (campus dual needs verify=False for some reason)
+    requests.packages.urllib3.disable_warnings(
+        requests.packages.urllib3.exceptions.InsecureRequestWarning
+    )
     while True:
         print("performing check")
         check_once()
