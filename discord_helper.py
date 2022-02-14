@@ -22,9 +22,9 @@ def send_result_embed(mscore: model.MScore, mscoredist: model.MScoreDist = None)
         description="Ein neues Prüfungsergebnis wurde auf Campus Dual veröffentlicht.",
         color="0070A3"
     )
-    date_embed.add_embed_field(name="Semester", value=f"{mscore.year}.{mscore.period}")
-    date_embed.add_embed_field(name="Bewertungsdatum", value=mscore.date_score)
-    date_embed.add_embed_field(name="Veröffentlichungsdatum", value=mscore.date_publish)
+    date_embed.add_embed_field(name="Semester", value=semester_format(mscore.year, mscore.period))
+    date_embed.add_embed_field(name="Beurteilung", value=mscore.date_score)
+    date_embed.add_embed_field(name="Bekanntgabe", value=mscore.date_publish)
 
     # error cases:
     # * dist is none -> ?
@@ -86,3 +86,20 @@ def send_result_embed(mscore: model.MScore, mscoredist: model.MScoreDist = None)
     hook.add_embed(date_embed)
     hook.add_embed(score_embed)
     hook.execute()
+
+
+def semester_format(year, period):
+    if period == "001":
+        sw = "Winter"
+    elif period == "002":
+        sw = "Sommer"
+    else:
+        sw = "??"
+        print(f"warning: failed to evaulate period '{period}'")
+    try:
+        year = int(year)
+        year_str = f"{year - 1}/{year}"
+    except ValueError:
+        print(f"warning: failed to evaulate year '{year}'")
+        year_str = f"??/{year}"
+    return f"{sw} {year_str}"
