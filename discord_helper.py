@@ -41,11 +41,7 @@ def send_result_embed(mscore: model.MScore, mscoredist: model.MScoreDist = None)
     if add_admission_stats:
         score_embed.add_embed_field(name="Abgeschlossen", value=f"{mscoredist.done}")
         score_embed.add_embed_field(name="Offen", value=f"{mscoredist.open}")
-        score_embed.add_embed_field(
-            name="Gesamt",
-            # fancy trick: only add a new line if something follows after this
-            value=f"{mscoredist.total}" + ("\n­" if add_mark_distribution else "")
-        )
+        score_embed.add_embed_field(name="Gesamt", value=str(mscoredist.total))
 
     if not add_mark_distribution:
         if add_admission_stats:
@@ -53,12 +49,6 @@ def send_result_embed(mscore: model.MScore, mscoredist: model.MScoreDist = None)
         else:
             score_embed.description = "Campus dual stellt zu dieser Prüfung keine Belegungsdaten bereit."
     else:
-        for i in range(8):
-            if i < 5:
-                score_embed.add_embed_field(**mscoredist.get_embed_dict(i))
-            if i % 2:
-                add_empty_field(score_embed)
-
         bold_config = [{
             "ticks": {
                 "beginAtZero": True,
